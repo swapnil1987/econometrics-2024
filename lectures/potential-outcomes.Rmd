@@ -1,0 +1,86 @@
+---
+title: "Microeconometrics Module"
+subtitle: "Lecture 1: Potential Outcomes"
+author: "Swapnil Singh"
+date: "Lietuvos Bankas and KTU | [Course Link](https://github.com/swapnil1987/lb-introduction-to-r)" 
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts] 
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{css, echo=FALSE}
+# CSS for including pauses in printed PDF output (see bottom of lecture)
+@media print {
+  .has-continuation {
+    display: block !important;
+  }
+}
+```
+
+```{css, echo=FALSE}
+.center-fit {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 80%;
+  max-height: 10%;
+}
+```
+
+
+```{r setup, include=FALSE}
+# xaringanExtra::use_scribble() ## Draw on slides. Requires dev version of xaringanExtra.
+
+options(htmltools.dir.version = FALSE)
+library(knitr)
+opts_chunk$set(
+   fig.asp = 9/16,
+  fig.align = 'center',
+  echo = F,
+  out.width = "95%",
+  dpi= 300
+  )
+
+knitr::opts_chunk$set(echo=TRUE, eval=TRUE,results='hide')
+
+Sys.setenv(lang='en')
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+library(tidyverse)
+library(hrbrthemes)
+library(fontawesome)
+library(tidyverse)
+library(ggtext)
+library(lubridate)
+library(here)
+library(magick)
+```
+
+
+# Lecture's Objectives
+
+1. [Why this course?](#motivation)
+
+2. [Getting started](#started)
+
+3. [What R can do?](#r4ds)
+
+4. [Basic Introduction](#introduction)
+
+
+
+
+
+---
+class: inverse, center, middle
+name: motivation
+
+# Why this course?
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+---
