@@ -21,12 +21,12 @@ While the course does not cover regression discontinuity designs, it comprehensi
 
 Below is the list of all lecture slides used in the course. You can also pull this repository to play with code exercises we did in the class.
 
-1. (Potential Outcomes)[https://github.com/swapnil1987/econometrics-2024/blob/main/lectures/1-potential-outcomes.pdf]
-2. Miscllaneous
-3. Endogeneity
-4. Selection Bias
-5. Randomized Control Trials
-6. Regression
-7. Matching
+1. [Potential Outcomes](https://github.com/swapnil1987/econometrics-2024/blob/main/lectures/1-potential-outcomes.pdf)
+2. [Miscllaneous](https://github.com/swapnil1987/econometrics-2024/blob/main/lectures/2-miscellaneous.pdf)
+3. [Endogeneity](https://github.com/swapnil1987/econometrics-2024/blob/main/lectures/3-endogeneity.pdf)
+4. [Selection Bias](https://github.com/swapnil1987/econometrics-2024/blob/main/lectures/4-selection-bias.pdf)
+5. [Randomized Control Trials](https://github.com/swapnil1987/econometrics-2024/blob/main/lectures/5-randomized-control-trials.pdf)
+6. [Regression](https://github.com/swapnil1987/econometrics-2024/blob/main/lectures/6-regression.pdf)
+7. [Matching](https://github.com/swapnil1987/econometrics-2024/blob/main/lectures/7-matching.pdf)
 8. Instrumental Variables
 9. Difference in Differences (DiD)
