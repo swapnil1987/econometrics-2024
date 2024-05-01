@@ -1,0 +1,11 @@
+\frametitle{Example: Omitted Variable Bias}
+	\begin{lstlisting}
+		
+		# Setting up the data
+		set.seed(123)
+		N <- 1000
+		X1 <- rnorm(N, 50, 10) # Explanatory variable
+		U <- rnorm(N, 0, 5)   # Unobserved variable
+		X2 <- 0.5 * X1 + rnorm(N,1,6)     # Another explanatory variable
+		Y <- 2 + 1 * X1 + 1.5 * X2 + U # Outcome variable
+	\end{lstlisting}

@@ -1,0 +1,231 @@
+\documentclass{beamer}
+%\usetheme{metropolis}
+\usetheme{default}
+\usecolortheme{default} % change this to change the color scheme
+\usepackage{graphicx}
+\usepackage{amsthm}
+\setbeamertemplate{itemize items}[circle]
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{positioning, shapes.geometric, arrows.meta}
+
+%\newtheorem{assumption}{Assumption}
+\newtheorem{assumption}{Assumption}[section]
+\colorlet{shadecolor}{gray!40}
+\newtheoremstyle{plain} % Just using 'plain' or any name if you're not defining a style
+{}    % Space above
+{}    % Space below
+{\itshape} % Body font
+{}    % Indent amount
+{\bfseries} % Theorem head font
+{.}   % Punctuation after theorem head
+{.5em} % Space after theorem head
+{}    % Theorem head spec (completely empty, no predefined format)
+
+\theoremstyle{plain}
+\newtheorem*{customthm}{} % No predefined name
+
+% Command to insert theorem with just a title
+\newcommand{\customtheorem}[2]{
+	\begin{customthm}
+		\textbf{#1.} #2
+	\end{customthm}
+}
+
+\lstset{
+	language=R,
+	basicstyle=\ttfamily\small,
+	commentstyle=\color{black},
+	keywordstyle=\color{blue},
+	numbers=left,
+	numberstyle=\tiny\color{red},
+	stepnumber=1,
+	numbersep=5pt,
+	backgroundcolor=\color{shadecolor},
+	showspaces=false,
+	showstringspaces=false,
+	showtabs=false,
+	frame=single,
+	tabsize=2,
+	captionpos=b,
+	breaklines=true,
+	breakatwhitespace=false,
+	title=\lstname
+}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newenvironment{bigitemize}{\itemize\addtolength{\itemsep}{10pt}}{\enditemize}
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\title{Microeconometrics Module}
+\subtitle{Lecture 8: Instrumental Variables}
+\author{Swapnil Singh}
+\date{Lietuvos Bankas and KTU \\ \href{https://github.com/swapnil1987/econometrics-2024}{\textcolor{magenta}{Course Link}}}
+
+\begin{document}
+	
+	\maketitle
+	
+	\begin{frame}{Selection on Observables and Unobservables}
+		\textbf{Understanding the Assumptions:}
+		\begin{itemize}
+			\item Observables:
+			\[
+			(Y_{0i}, Y_{1i}) \perp D_i \mid X_i
+			\]
+			Assumes that all relevant variables influencing treatment assignment, \(X_i\), are observed.
+			
+			\item Unobservables:
+			\begin{enumerate}
+				\item \((Y_{0i}, Y_{1i}) \perp Z_i\)
+				\item \(\operatorname{Cov}(Z_i, D_i) \neq 0\)
+			\end{enumerate}
+			Moves beyond observable characteristics, relying on instruments (\(Z_i\)) that affect treatment but are independent from the outcomes except through treatment.
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{The Goals of Causal Inference}
+		\textbf{Isolating Variation:}
+		\begin{itemize}
+			\item We aim to separate the exogenous (good) variation in \(D_i\) from the endogenous (bad) variation that correlates with outcomes \(Y_{0i}\) and \(Y_{1i}\).
+			\item \textbf{Strategy:}
+			\begin{itemize}
+				\item Use observables \(X_i\) to control for all observable confounding.
+				\item Utilize unobservables \(Z_i\) to capture the pure effects of \(D_i\) on \(Y_i\), filtering out the confounding.
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}{Choosing the Right Approach}
+		\textbf{Which approach better handles confounding?}
+		\begin{enumerate}
+			\item \textbf{Observables:} Assumes perfect knowledge of confounders—challenging and often unrealistic in non-experimental settings.
+			\item \textbf{Unobservables (Instrumental Variables):} More plausible as it uses instruments to isolate exogenous variation, though it may sometimes be underpowered.
+		\end{enumerate}
+	\end{frame}
+	
+	\begin{frame}{Instrumental Variables: An Introduction}
+		\textbf{Isolating Good Variation:}
+		\[
+		Y_i = \beta_0 + \beta_1 D_i + \varepsilon_i \tag{1}
+		\]
+		\begin{itemize}
+			\item Instrumental Variables (IV) use tools or instruments (\(Z_i\)) to ensure that \( \operatorname{Cov}(D_i, \varepsilon_i) = 0 \).
+			\item This approach allows us to estimate \(\beta_1\) consistently, avoiding the bias that occurs in ordinary least squares (OLS) when \(D_i\) is correlated with \(\varepsilon_i\).
+		\end{itemize}
+	\end{frame}
+
+\begin{frame}{Directed Acyclic Graph: Instrumental Variable Approach}
+	\begin{center}
+		\begin{tikzpicture}[scale=0.8][node distance=2cm and 2.5cm, auto, thick]
+			% Nodes
+			\node[ellipse, draw=black, fill=blue!20, minimum width=2.5cm, minimum height=1cm, align=center] (Z) {Instrument\\$Z_i$};
+			\node[ellipse, draw=black, fill=green!20, minimum width=2.5cm, minimum height=1cm, right=of Z, align=center] (D) {Treatment\\$D_i$};
+			\node[ellipse, draw=black, fill=red!20, minimum width=2.5cm, minimum height=1cm, right=of D, align=center] (Y) {Outcome\\$Y_i$};
+			\node[ellipse, draw=black, fill=gray!20, minimum width=2.5cm, minimum height=1cm, above=of D, align=center] (U) {Unobserved\\confounders\\$U_i$};
+			
+			% Arrows
+			\draw[-Latex] (Z) -- (D) node[midway, below] {};
+			\draw[-Latex] (D) -- (Y) node[midway, below] {};
+			\draw[-Latex] (U) -- (D) node[midway, right] {};
+			\draw[-Latex] (U) -- (Y) node[midway, right] {};
+			
+			% Information about independence
+			\draw[dashed, Latex-Latex] (Z) to[bend left=45] node[midway, above] {independent} (U);
+			\draw[dashed, Latex-Latex] (Z) to[bend right=45] node[midway, below] {independent} (Y);
+		\end{tikzpicture}
+	\end{center}
+\end{frame}
+	
+	\begin{frame}{Defining a Valid Instrument}
+		\textbf{Criteria for Instrument Validity:}
+		\begin{enumerate}
+			\item \(\operatorname{Cov}(Z_i, D_i) \neq 0\) — The instrument must influence the treatment.
+			\item \(\operatorname{Cov}(Z_i, \varepsilon_i) = 0\) — The instrument must not be related to the outcome other than through the treatment.
+		\end{enumerate}
+		These conditions ensure that \(Z_i\) is a suitable instrument for isolating the causal effect of \(D_i\) on \(Y_i\).\\
+		\vspace{1em}
+		First condition is easy to check. Second condition -- known as \textbf{exclusion restriction} -- can only be reasoned through. You cannot check it. Why?
+	\end{frame}
+	
+	\begin{frame}{Two-Stage Least Squares (2SLS)}
+		\textbf{Operationalizing IV:}
+		\begin{itemize}
+			\item \textbf{First Stage:} Estimate the effect of \(Z_i\) on \(D_i\) (possibly with other covariates \(X_i\)), obtaining \(\widehat{D_i}\).
+			\item \textbf{Second Stage:} Use \(\widehat{D_i}\) to estimate the causal effect on \(Y_i\).
+		\end{itemize}
+		\textbf{Consistency:}
+		\[
+		\hat{\beta}_\text{2SLS} = \left( D' P_Z D \right)^{-1} \left( D' P_Z Y \right)
+		\]
+		where \(P_Z = Z (Z'Z)^{-1} Z'\) is the projection matrix of \(Z\). This estimator is consistent for \(\beta_1\), assuming valid instruments.
+	\end{frame}
+
+\begin{frame}{IV Estimation Essentials}
+	\textbf{Key Considerations in Two-Stage Least Squares (2SLS) and IV Estimation:}
+	\begin{itemize}
+		\item The controls $(X_i)$ must be consistent across both stages to maintain coherence in the model.
+		\item Standard errors from the second stage are typically biased unless corrected for the procedures used in the first stage.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Understanding the Reduced Form}
+	\textbf{The Reduced Form Equation:}
+	\[
+	Y_i = \pi_1 Z_i + \pi_2 X_i + u_i
+	\]
+	\begin{itemize}
+		\item This regression links the outcome directly to the instrument and control variables.
+		\item It provides a consistent estimate of the instrument's effect on the outcome, bypassing endogeneity issues.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{The Value of the Reduced Form}
+	\textbf{Advantages of the Reduced Form:}
+	\begin{itemize}
+		\item Clarifies the source of identifying variation in the model.
+		\item Avoids complications associated with weak instruments.
+		\item Simplifies interpretation by directly estimating the effect of the instrument on the outcome.
+		\[
+		\widehat{\beta}_{1}^{2SLS} = \frac{\widehat{\pi}_{1}}{\widehat{\gamma}_{1}}
+		\]
+		This ratio illustrates the causal effect of treatment, scaled by the influence of the instrument on treatment.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Intuitive Understanding of Reduced Form}
+	\textbf{Estimating Impact via 2SLS:}
+	\[
+	\widehat{\beta}_{1}^{2SLS} = \frac{\text{Reduced-form estimate}}{\text{First-stage estimate}} = \frac{\widehat{\pi}_{1}}{\widehat{\gamma}_{1}}
+	\]
+	\begin{itemize}
+		\item \(\widehat{\pi}_1\): Effect of the instrument on the outcome.
+		\item \(\widehat{\gamma}_1\): Effect of the instrument on the treatment.
+		\item This ratio adjusts the direct instrument effect on the outcome to reflect its indirect effect via treatment.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Reduced Form Example: Scholarship Impact on Income}
+	\textbf{Scenario Analysis:}
+	\begin{itemize}
+		\item Suppose 50\% of lottery winners graduate due to the scholarship (\(\widehat{\gamma}_1 = 0.50\)).
+		\item Reduced form estimate shows a \$5,000 income increase for winners (\(\widehat{\pi}_1 = \$5,000\)).
+		\item Actual effect of graduation on income, when adjusted for the scholarship effect on graduation, is:
+		\[
+		\frac{\$5,000}{0.50} = \$10,000
+		\]
+		This calculation adjusts for the proportion of scholarship recipients who graduate, doubling the perceived income benefit.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Deep Dive into IV Mechanics}
+	\textbf{Further Insights:}
+	Explore the nuances of IV estimation, focusing on the subtleties and implications of instrument strength and exogeneity.
+\end{frame}
+
+	
+
+\end{document}

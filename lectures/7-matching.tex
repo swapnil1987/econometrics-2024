@@ -1,0 +1,276 @@
+\documentclass{beamer}
+%\usetheme{metropolis}
+\usetheme{default}
+\usecolortheme{default} % change this to change the color scheme
+\usepackage{graphicx}
+\usepackage{amsthm}
+\setbeamertemplate{itemize items}[circle]
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{listings}
+%\newtheorem{assumption}{Assumption}
+\newtheorem{assumption}{Assumption}[section]
+\colorlet{shadecolor}{gray!40}
+\newtheoremstyle{plain} % Just using 'plain' or any name if you're not defining a style
+{}    % Space above
+{}    % Space below
+{\itshape} % Body font
+{}    % Indent amount
+{\bfseries} % Theorem head font
+{.}   % Punctuation after theorem head
+{.5em} % Space after theorem head
+{}    % Theorem head spec (completely empty, no predefined format)
+
+\theoremstyle{plain}
+\newtheorem*{customthm}{} % No predefined name
+
+% Command to insert theorem with just a title
+\newcommand{\customtheorem}[2]{
+	\begin{customthm}
+		\textbf{#1.} #2
+	\end{customthm}
+}
+
+\lstset{
+	language=R,
+	basicstyle=\ttfamily\small,
+	commentstyle=\color{black},
+	keywordstyle=\color{blue},
+	numbers=left,
+	numberstyle=\tiny\color{red},
+	stepnumber=1,
+	numbersep=5pt,
+	backgroundcolor=\color{shadecolor},
+	showspaces=false,
+	showstringspaces=false,
+	showtabs=false,
+	frame=single,
+	tabsize=2,
+	captionpos=b,
+	breaklines=true,
+	breakatwhitespace=false,
+	title=\lstname
+}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newenvironment{bigitemize}{\itemize\addtolength{\itemsep}{10pt}}{\enditemize}
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\title{Microeconometrics Module}
+\subtitle{Lecture 7: Matching}
+\author{Swapnil Singh}
+\date{Lietuvos Bankas and KTU \\ \href{https://github.com/swapnil1987/econometrics-2024}{\textcolor{magenta}{Course Link}}}
+
+\begin{document}
+	
+	\maketitle
+	
+
+
+\begin{frame}{The Essence of Matching}
+	\textbf{Core Idea:} When conducting causal inference, the conditional independence assumption holds that treatments are as random, dependent only on known covariates.
+	
+	\begin{align*}
+		\left(Y_{0i}, Y_{1i}\right) \independent D_i | X_i
+	\end{align*}
+	
+	\vspace{1em}
+	\textit{This assumption leads us to trust that matching estimators can accurately calculate treatment effects by conditioning on covariates.}
+	
+	\vspace{1em}
+	Theoretical Basis:
+	\[
+	\tau(x) = \mathbb{E}[ Y_{1i} - Y_{0i} \mid X_i = x ]
+	\]
+	This equation illustrates how the conditional independence assumption underpins causal estimation within defined groups.
+\end{frame}
+
+
+\begin{frame}{Goals of Matching}
+	The fundamental problem of causal inference:
+	\begin{enumerate}
+		\item Discover the individual treatment effect, $\tau_i = Y_{1i} - Y_{0i}$.
+		\item Overcome the limitation of not observing both outcomes simultaneously.
+	\end{enumerate}
+	
+	\vspace{1em}
+	Solution through Matching:
+	\textit{Match each treated observation with an untreated counterpart based on similarity in covariates, allowing estimation of the unobserved counterfactual outcome.}
+\end{frame}
+
+
+\begin{frame}{A Formal Approach to Matching}
+	Objective: Construct a valid counterfactual for each treated individual using matching techniques.
+	
+	\vspace{1em}
+	Strategy:
+	\begin{itemize}
+		\item Establish a set of weights for each treated individual, corresponding to matched controls.
+		\item Ensure that these weights sum to one for each treated individual.
+	\end{itemize}
+	\vspace{1em}
+	Notation: $N_T$ and $N_C$ treated and control individuals/units. For each $i$ treated unit, associated $N_C$ weights given as $(w_i(1), \cdots, w_i(N_C))$ such that $\sum_{j=1}^{N_C} w_i(j) = 1$. 
+	
+	\vspace{1em}
+	Calculation of counterfactual:
+	\[
+	\widehat{Y_{0i}} = \sum_{j \in (D=0)} w_i(j) Y_j
+	\]
+	This formula calculates the estimated outcome for treated individuals, relying on weighted averages of control outcomes.
+\end{frame}
+
+\begin{frame}
+	\frametitle{A Formal Approach to Matching}
+	\begin{itemize}
+		\item Note that we have counterfactual for each treated individual/unit
+		\item Treatment effect for individual $i$
+			\begin{align*}
+				\widehat \tau_i &= \underbrace{Y_{1i}}_{observed}  - \underbrace{\widehat{Y_{0i}}}_{constructed}
+			\end{align*}
+		\item We can write the matching estimator as 
+			\begin{align*}
+				\widehat{\tau_m} = \frac{1}{N_T}\sum_{i\in (D=1)} \widehat \tau_i
+			\end{align*}
+		\pause 
+		\item Easy, huh! But wait. We have something missing here.
+		\pause
+		\item Weights i.e. $w_i(j)$'s. We don't have them and we need to calculate them
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Matching Weights}
+	 \textbf{Question:} How do we choose/estimate weights?\\
+	 \vspace{1em}
+	 Bad idea: $w_{i}(j) = \frac{1}{N_C}$.  Why?\\
+	 \pause
+	 \vspace{1em}
+	 \textbf{Answer:} essentially you are calculating difference in means, discarding $X$ and letting go of conditional independence assumption\\
+	 \vspace{1em}
+	 Bad idea leading to good idea: use information contained in $X$ to construct weights. Further, weights should signify how close $X_i$ i.e. treated individuals covariate is close to $X_j$ i.e. control group individual's covariate\\
+	 \vspace{1em}
+	 \textbf{Key takeaway:} weights should tell us how close a treated unit is to control unit.
+	 	\begin{itemize}
+	 		\item Too low weight $\Rightarrow$ treated unit is far from control unit
+	 		\item High weight $\Rightarrow$ treated unit is close to control unit
+	 	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Matching Weights: Discrete Covariates}
+	\begin{itemize}
+		\item 	If covariates are discrete, set weights equal to one if treatment and control group covariates are same, zero otherwise
+		\item You will need to do scaling so that weights sum up to one
+	\end{itemize}
+\begin{example}
+	Let's say there are two covariates: gender (male, female) and college education (yes, no). Then there will be four groups of covariates: (male, yes), (male, no), (female, yes), (female, no)
+\end{example}
+\vspace{2em}
+
+\textbf{Question:}	How many groups will be created if there are 10 discrete covariates?
+
+\end{frame}
+
+\begin{frame}
+	\frametitle{Matching Weights: Continuous Covariates}
+	\begin{itemize}
+		\item With continuous variables, it is a folly to assume that two individuals will have same value of covariates
+		\item So, we go with the notion of how near covariate values are
+		\item Need to define distance between control and treatment units based on the value of their covariates
+		\item Two examples of distances:
+			\begin{enumerate}
+				\item Euclidean
+				\item Mahalanobis
+			\end{enumerate}
+		\begin{align*}
+			\textcolor{blue}{Euclidean:} & \;\;\; d_{i,j} = (X_i -  X_j)'(X_i - X_j)\\
+			\textcolor{red}{Mahalanobis:} & \;\;\; d_{i,j} = (X_i -  X_j)'\Sigma_X^{-1}(X_i - X_j)
+		\end{align*}
+		\item For each treatment unit, pick a control unit which is closest to it in terms of distance
+	\end{itemize}
+\textbf{Note:} We will get causal estimate under two conditions:
+	\begin{enumerate}
+		\item CIA holds
+		\item There is a common support (more on this in practical example)
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Further Problems/Issues}
+	\textbf{Problem/Issue 1:}
+	\begin{itemize}
+		\item We are pick one nearest neighbor and letting go of lot of information contained in other control units
+		\item You solve this issue by using Kernel matching. What it does?
+			\begin{itemize}
+				\item Give weights to each control unit
+				\item Closer is the control unit, larger is the weight
+			\end{itemize}
+	\end{itemize}
+		\frametitle{Further Problems/Issues}
+	\textbf{Problem/Issue 2:}
+	\begin{itemize}
+		\item What if there are too many covariates $\Rightarrow$ curse of dimensionality
+		\item Solution lies  in propensity score matching
+		\item Focus of the remaining lecture
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Propensity Score Method: Theoretical Foundation}
+	\customtheorem{Propensity score theorem}{ \\If $\left(Y_{0i}, Y_{1i}\right) \independent D_i | X_i$, i.e. CIA holds, then $\left(Y_{0i}, Y_{1i}\right) \independent D_i | p(X_i)$, where $p(X_i) =\mathbb E(D_i\mid X_i)$ is the propensity score, i.e. the probability of treatment given $X_i$.}
+	\pause
+	The theorem states that if the \textbf{Conditional Independence Assumption (CIA)} holds, meaning that the potential outcomes \( (Y_{0i}, Y_{1i}) \) are independent of the treatment assignment \( D_i \) once we control for covariates \( X_i \), then a remarkable simplification occurs: the potential outcomes are also independent of the treatment assignment given the propensity score alone. This implies that the propensity score \( p(X_i) = \mathbb{E}(D_i \mid X_i) \) effectively balances the treatment and control groups in terms of the distribution of covariates \( X_i \).\\
+	\pause
+	\textcolor{red}{Life becomes simple if we know $p(X_i)$. How do we calculate them?}
+	
+\end{frame}
+
+\begin{frame}
+	\frametitle{Propensity Score Estimation and Use}
+	\begin{itemize}
+		\item We use logit method and regress treatment dummy on covariates and then predict the probability of treatment
+		\item Once propensity  score is estimated we can use it in the following way:
+			\begin{itemize}
+				\item Directly use them as a covariate in regression
+					\begin{align*}
+						Y_i = \alpha + \gamma p(X_i) + \beta D_i + u_i
+					\end{align*}
+				\item Stratify on propensity scores (discussed next)
+				\item Do a matching based on propensity scores and then run regression
+				\item Run a simple regression but weight observations by the inverse of propensity scores (not discussed)
+			\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Stratification}
+	\begin{enumerate}
+		\item Propensity scores are actually probability of treatment
+		\item Hence, they vary between 0 and 1
+		\item Divide the (0,1) interval, let's say in $N$ groups
+		\item Within each group calculate the treatment effect based on treatment and control observations which fall within that group
+		\item Average out the treatment effect from each group to compute average treatment effect
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}
+	\begin{center}
+		\Large\textcolor{blue}{Practical Example}
+	\end{center}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{More Experience}
+	
+	Follow these links:\\
+	\href{https://cran.r-project.org/web/packages/MatchIt/vignettes/matching-methods.html}{\textcolor{magenta}{Matching Methods}}\\
+	\href{https://kosukeimai.github.io/MatchIt/articles/assessing-balance.html}{\textcolor{magenta}{Balance Assessment}}\\
+	\href{https://kosukeimai.github.io/MatchIt/articles/estimating-effects.html}{\textcolor{magenta}{Estimating Effects After Matching}}\\
+	
+	
+\end{frame}
+
+\end{document}
