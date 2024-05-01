@@ -17,8 +17,6 @@ This microeconometrics course provides a comprehensive introduction to the metho
 
 7. **Difference in Differences (DiD)**: DiD is discussed as a method for evaluating the effect of a treatment or intervention by comparing the changes in outcomes over time between a treatment group and a control group.
 
-While the course does not cover regression discontinuity designs, it comprehensively addresses other major econometric strategies, ensuring students are well-prepared to tackle a variety of empirical questions in economics. This course is ideal for students interested in empirical economics, policy analysis, and anyone aiming to develop robust analytical skills for interpreting complex economic data.
-
 Below is the list of all lecture slides used in the course. You can also pull this repository to play with code exercises we did in the class.
 
 1. [Potential Outcomes](https://github.com/swapnil1987/econometrics-2024/blob/main/lectures/1-potential-outcomes.pdf)
