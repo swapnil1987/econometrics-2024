@@ -21,7 +21,7 @@ While the course does not cover regression discontinuity designs, it comprehensi
 
 Below is the list of all lecture slides used in the course. You can also pull this repository to play with code exercises we did in the class.
 
-1. Potential Outcomes
+1. (Potential Outcomes)[https://github.com/swapnil1987/econometrics-2024/blob/main/lectures/1-potential-outcomes.pdf]
 2. Miscllaneous
 3. Endogeneity
 4. Selection Bias
